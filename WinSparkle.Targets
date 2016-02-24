@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
          ToolsVersion="4.0">
 
   <PropertyGroup>
-    <GettextBinDir>"$(SolutionDir)\packages\Gettext.Tools.FS.0.19.7.001\tools\bin\"</GettextBinDir>
-    <Msgfmt>$(GettextBinDir)msgfmt.exe -c</Msgfmt>
+    <GettextBinDir>$(SolutionDir)packages\Gettext.Tools.FS.0.19.7.001\tools\bin\</GettextBinDir>
+    <Msgfmt>"$(GettextBinDir)msgfmt.exe" -c</Msgfmt>
   </PropertyGroup>
 
   <ItemGroup>
-    <TranslationFiles Include="translations\*.po" />
-    <CompiledTranslationFiles Include="translations\*.mo" />
+    <TranslationFiles Include="$(MSBuildThisFileDirectory)translations\*.po" />
+    <CompiledTranslationFiles Include="$(MSBuildThisFileDirectory)translations\*.mo" />
   </ItemGroup>
 
   <Target Name="CopyTranslations_Poedit" BeforeTargets="ResourceCompile"
           Inputs="@(TranslationFiles)"
           Outputs="@(TranslationFiles->'%(Filename).mo')">
     <Message Importance="High" Text="Compiling translations..." />
-    <Exec Command='$(Msgfmt) -o "translations\%(TranslationFiles.Filename).mo" @(TranslationFiles)' />
+    <Exec Command='$(Msgfmt) -o "$(MSBuildThisFileDirectory)translations\%(TranslationFiles.Filename).mo" @(TranslationFiles)' />
   </Target>
 
   <Target Name="CleanMOs" AfterTargets="Clean">
