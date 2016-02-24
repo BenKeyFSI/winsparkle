@@ -1,7 +1,7 @@
 /*
  *  This file is part of WinSparkle (http://winsparkle.org)
  *
- *  Copyright (C) 2009-2015 Vaclav Slavik
+ *  Copyright (C) 2009-2016 Vaclav Slavik
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
@@ -57,6 +57,7 @@
 #include <exdisp.h>
 #include <mshtml.h>
 #include <commctrl.h>
+#include <shellapi.h>
 
 
 #if !wxCHECK_VERSION(2,9,0)
@@ -695,17 +696,22 @@ void UpdateDialog::OnRunInstaller(wxCommandEvent&)
 
 bool UpdateDialog::RunInstaller()
 {
-    if (m_installerArguments.empty()) 
+    std::wstring wArgs;
+
+    SHELLEXECUTEINFO sei;
+    ::ZeroMemory(&sei, sizeof(SHELLEXECUTEINFO));
+    sei.cbSize = sizeof(SHELLEXECUTEINFO);
+    sei.lpFile = m_updateFile.t_str();
+    sei.nShow = SW_SHOWDEFAULT;
+    sei.fMask = SEE_MASK_FLAG_NO_UI;	// We display our own dialog box on error
+
+    if (! m_installerArguments.empty())
     {
-        // keep old way of calling updater to not accidentally break any existing code
-        return wxLaunchDefaultApplication(m_updateFile);
-    } 
-    else 
-    {
-        // wxExecute() returns a process id, or zero on failure
-        long processId = wxExecute(m_updateFile + " " + m_installerArguments);
-        return processId != 0;
+        wArgs = AnsiToWide(m_installerArguments);
+        sei.lpParameters = wArgs.c_str();
     }
+
+    return ::ShellExecuteEx(&sei) ? true : false;
 }
 
 void UpdateDialog::SetMessage(const wxString& text, int width)
@@ -738,8 +744,6 @@ void UpdateDialog::StateCheckingUpdates()
 void UpdateDialog::StateNoUpdateFound(bool installAutomatically)
 {
     m_installAutomatically = installAutomatically;
-
-    ApplicationController::NotifyUpdateNotFound();
 
     if ( m_installAutomatically )
     {
@@ -1481,6 +1485,8 @@ void UI::ShutDown()
 /*static*/
 void UI::NotifyNoUpdates(bool installAutomatically)
 {
+    ApplicationController::NotifyUpdateNotFound();
+
     UIThreadAccess uit;
     EventPayload payload;
     payload.installAutomatically = installAutomatically;
@@ -1495,6 +1501,8 @@ void UI::NotifyNoUpdates(bool installAutomatically)
 /*static*/
 void UI::NotifyUpdateAvailable(const Appcast& info, bool installAutomatically)
 {
+    ApplicationController::NotifyUpdateFound();
+
     UIThreadAccess uit;
     EventPayload payload;
     payload.appcast = info;

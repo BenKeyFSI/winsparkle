@@ -1,7 +1,7 @@
 /*
  *  This file is part of WinSparkle (http://winsparkle.org)
  *
- *  Copyright (C) 2009-2015 Vaclav Slavik
+ *  Copyright (C) 2009-2016 Vaclav Slavik
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
@@ -320,6 +320,23 @@ typedef void (__cdecl *win_sparkle_shutdown_request_callback_t)();
     @see win_sparkle_set_can_shutdown_callback()
 */
 WIN_SPARKLE_API void __cdecl win_sparkle_set_shutdown_request_callback(win_sparkle_shutdown_request_callback_t);
+
+/// Callback type for win_sparkle_did_find_update_callback()
+typedef void(__cdecl *win_sparkle_did_find_update_callback_t)();
+
+/**
+    Set callback to be called when the updater did find an update.
+
+    This is useful in combination with
+    win_sparkle_check_update_with_ui_and_install() as it allows you to perform
+    some action after WinSparkle checks for updates.
+
+    @since 0.5
+
+    @see win_sparkle_did_not_find_update_callback()
+    @see win_sparkle_check_update_with_ui_and_install()
+*/
+WIN_SPARKLE_API void __cdecl win_sparkle_set_did_find_update_callback(win_sparkle_did_find_update_callback_t callback);
 
 /// Callback type for win_sparkle_did_not_find_update_callback()
 typedef void (__cdecl *win_sparkle_did_not_find_update_callback_t)();
