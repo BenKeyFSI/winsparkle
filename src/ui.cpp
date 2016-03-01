@@ -1464,7 +1464,6 @@ void UI::Run()
     SignalReady();
 
     // Run the app:
-    wxMSWDisableSettingHighDPIAware();
     wxEntry(ms_hInstance);
 }
 
